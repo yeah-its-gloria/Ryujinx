@@ -1,4 +1,5 @@
 using Ryujinx.HLE.HOS.Applets;
+using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.HLE.HOS.Services.Am.AppletOE.ApplicationProxyService.ApplicationProxy.Types;
 
 namespace Ryujinx.HLE.Ui
@@ -32,10 +33,19 @@ namespace Ryujinx.HLE.Ui
         /// <param name="value">The value associated to the <paramref name="kind"/>.</param>
         void ExecuteProgram(Switch device, ProgramSpecifyKind kind, ulong value);
 
+        /// <summary>
         /// Displays a Message Dialog box specific to Error Applet and blocks until it is closed.
         /// </summary>
         /// <returns>False when OK is pressed, True when another button (Details) is pressed.</returns>
         bool DisplayErrorAppletDialog(string title, string message, string[] buttonsText);
+
+        /// <summary>
+        /// Displays the profile selector.
+        /// </summary>
+        /// <param name="profiles">Which users should be selectable.</param>
+        /// <param name="selected">The selected user.</param>
+        /// <returns>True if a user was selected, otherwise False.</returns>
+        bool DisplayProfileSelector(UserProfile[] profiles, out UserId selected);
 
         /// <summary>
         /// Creates a handler to process keyboard inputs into text strings.

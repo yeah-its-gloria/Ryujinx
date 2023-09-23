@@ -7,6 +7,7 @@ using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.Windows;
 using Ryujinx.HLE;
 using Ryujinx.HLE.HOS.Applets;
+using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.HLE.HOS.Services.Am.AppletOE.ApplicationProxyService.ApplicationProxy.Types;
 using Ryujinx.HLE.Ui;
 using System;
@@ -187,6 +188,47 @@ namespace Ryujinx.Ava.UI.Applet
         public IDynamicTextInputHandler CreateDynamicTextInputHandler()
         {
             return new AvaloniaDynamicTextInputHandler(_parent);
+        }
+
+        public bool DisplayProfileSelector(UserProfile[] profiles, out UserId selected)
+        {
+            ManualResetEvent dialogCloseEvent = new(false);
+
+            bool wasSelected = false;
+            UserId which = UserId.Null;
+
+            Dispatcher.UIThread.Post(async () =>
+            {
+                try
+                {
+                    ProfileSelectorWindow msgDialog = new(_parent, profiles)
+                    {
+                        WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                        Width = 400,
+                    };
+
+                    UserId? response = await msgDialog.Run();
+                    if (response != null)
+                    {
+                        which = (UserId)response;
+                        wasSelected = true;
+                    }
+
+                    dialogCloseEvent.Set();
+                    msgDialog.Close();
+                }
+                catch (Exception ex)
+                {
+                    dialogCloseEvent.Set();
+
+                    await ContentDialogHelper.CreateErrorDialog(LocaleManager.Instance.UpdateAndGetDynamicValue(LocaleKeys.DialogProfileSelectorErrorExceptionMessage, ex));
+                }
+            });
+
+            dialogCloseEvent.WaitOne();
+
+            selected = which;
+            return wasSelected;
         }
     }
 }

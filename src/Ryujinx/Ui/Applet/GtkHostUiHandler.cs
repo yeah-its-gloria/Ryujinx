@@ -1,5 +1,6 @@
 using Gtk;
 using Ryujinx.HLE.HOS.Applets;
+using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.HLE.HOS.Services.Am.AppletOE.ApplicationProxyService.ApplicationProxy.Types;
 using Ryujinx.HLE.Ui;
 using Ryujinx.Ui.Widgets;
@@ -195,6 +196,11 @@ namespace Ryujinx.Ui.Applet
         public IDynamicTextInputHandler CreateDynamicTextInputHandler()
         {
             return new GtkDynamicTextInputHandler(_parent);
+        }
+
+        public bool DisplayProfileSelector(UserProfile[] profiles, out UserId selected)
+        {
+            throw new NotImplementedException();
         }
     }
 }
