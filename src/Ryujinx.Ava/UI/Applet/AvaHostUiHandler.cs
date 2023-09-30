@@ -194,41 +194,32 @@ namespace Ryujinx.Ava.UI.Applet
         {
             ManualResetEvent dialogCloseEvent = new(false);
 
-            bool wasSelected = false;
             UserId which = UserId.Null;
 
             Dispatcher.UIThread.Post(async () =>
             {
                 try
                 {
-                    ProfileSelectorWindow msgDialog = new(_parent, profiles)
+                    UserId response = await ProfileSelectorDialog.ShowProfileSelector(profiles);
+                    if (response != UserId.Null)
                     {
-                        WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                        Width = 400,
-                    };
-
-                    UserId? response = await msgDialog.Run();
-                    if (response != null)
-                    {
-                        which = (UserId)response;
-                        wasSelected = true;
+                        which = response;
                     }
-
-                    dialogCloseEvent.Set();
-                    msgDialog.Close();
                 }
                 catch (Exception ex)
                 {
+                    await ContentDialogHelper.CreateErrorDialog(LocaleManager.Instance.UpdateAndGetDynamicValue(LocaleKeys.DialogSoftwareKeyboardErrorExceptionMessage, ex));
+                }
+                finally
+                {
                     dialogCloseEvent.Set();
-
-                    await ContentDialogHelper.CreateErrorDialog(LocaleManager.Instance.UpdateAndGetDynamicValue(LocaleKeys.DialogProfileSelectorErrorExceptionMessage, ex));
                 }
             });
 
             dialogCloseEvent.WaitOne();
 
             selected = which;
-            return wasSelected;
+            return !selected.IsNull;
         }
     }
 }
